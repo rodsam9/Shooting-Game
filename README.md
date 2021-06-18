@@ -27,3 +27,4 @@ root                    (project root folder)
 ## Authors
 ---
 Sam Rodriguez - rod17010@byui.edu
+Aston Cook - coo10925@byui.edu
