@@ -28,3 +28,4 @@ root                    (project root folder)
 ---
 Sam Rodriguez - rod17010@byui.edu
 Aston Cook - coo10925@byui.edu
+Bethany James - jam16013@byui.edu
