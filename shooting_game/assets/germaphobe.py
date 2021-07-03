@@ -22,23 +22,10 @@ HEALTHBAR_OFFSET_Y = -10
 HEALTH_NUMBER_OFFSET_X = -10
 HEALTH_NUMBER_OFFSET_Y = -25
 
-window = None
-
 class ENEMY(arcade.Sprite):
-    """
-    This class represents the coins on our screen. It is a child class of
-    the arcade library's "Sprite" class.
-    """
 
     def follow_sprite(self, player_sprite):
-        """
-        This function will move the current sprite towards whatever
-        other sprite is specified as a parameter.
-
-        We use the 'min' function here to get the sprite to line up with
-        the target sprite, and not jump around if the sprite is not off
-        an exact multiple of SPRITE_SPEED.
-        """
+        # This tells the enemies to go to the main guy
 
         if self.center_y < player_sprite.center_y:
             self.center_y += min(SPRITE_SPEED, player_sprite.center_y - self.center_y)
@@ -58,7 +45,7 @@ class ENEMY(arcade.Sprite):
         self.cur_health = max_health
 
     def draw_health_number(self):
-        """ Draw how many hit points we have """
+        # Draw how many health the enemies have
 
         health_string = f"{self.cur_health}/{self.max_health}"
         arcade.draw_text(health_string,
@@ -68,9 +55,9 @@ class ENEMY(arcade.Sprite):
                          color=arcade.color.WHITE)
 
     def draw_health_bar(self):
-        """ Draw the health bar """
+        # Draw the health bar
 
-        # Draw the 'unhealthy' background
+        # Draw the red background
         if self.cur_health < self.max_health:
             arcade.draw_rectangle_filled(center_x=self.center_x,
                                          center_y=self.center_y + HEALTHBAR_OFFSET_Y,
@@ -100,28 +87,26 @@ class MyGame(arcade.Window):
         self.enemy_list = None
         self.bullet_list = None
 
-        # Set up the player info
+        # Set up the player
         self.player_sprite = None
 
     def setup(self):
 
-        """ Set up the game and initialize the variables. """
+        # Set up the game
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-
-        # Image from kenney.nl
         self.player_sprite = arcade.Sprite(":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
 
-        # Create the coins
+        # Create the enemies
         for i in range(ENEMY_COUNT):
 
-            # Create the enemy instance
+            # Create the enemy image
             enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, max_health=2)
 
             # Position the enemy
@@ -135,12 +120,10 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.AUROMETALSAURUS)
 
     def on_draw(self):
-        """ Render the screen. """
-
-        # This command has to happen before we start drawing
+        # render the screen befroe start drawing
         arcade.start_render()
 
-        # Draw all the sprites.
+        # Draw all the sprites
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.player_list.draw()
@@ -150,7 +133,7 @@ class MyGame(arcade.Window):
             enemy.draw_health_bar()
 
     def on_mouse_press(self, x, y, button, modifiers):
-        """ Called whenever the mouse button is clicked. """
+        # Called whenever the mouse button is clicked
 
         # Create a bullet
         bullet = arcade.Sprite(":resources:images/topdown_tanks/tankDark_barrel3.png", SPRITE_SCALING_LASER)
@@ -162,19 +145,15 @@ class MyGame(arcade.Window):
         bullet.center_y = start_y
 
         # Get from the mouse the destination location for the bullet
-        # IMPORTANT! If you have a scrolling screen, you will also need
-        # to add in self.view_bottom and self.view_left.
         dest_x = x
         dest_y = y
 
         # Do math to calculate how to get the bullet to the destination.
-        # Calculation the angle in radians between the start points
-        # and end points. This is the angle the bullet will travel.
         x_diff = dest_x - start_x
         y_diff = dest_y - start_y
         angle = math.atan2(y_diff, x_diff)
 
-        #angle the bullet
+        # angle the bullet
         bullet.angle = math.degrees(angle)
         print(f"Bullet angle: {bullet.angle:.2f}")
 
@@ -183,7 +162,7 @@ class MyGame(arcade.Window):
         bullet.change_x = math.cos(angle) * BULLET_SPEED
         bullet.change_y = math.sin(angle) * BULLET_SPEED
 
-        # Add the bullet to the appropriate lists
+        # Add the bullet to the lists
         self.bullet_list.append(bullet)
 
     def on_update(self, delta_time):
@@ -192,7 +171,7 @@ class MyGame(arcade.Window):
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
 
-        # Call update on all sprites
+        # update all sprites
         self.bullet_list.update()
 
         # Loop through each bullet
@@ -207,7 +186,7 @@ class MyGame(arcade.Window):
 
             # For every enemy we hit, process
             for enemy in hit_list:
-                # Make sure this is the right type of class
+                # Make sure this is the right sprite
                 if not isinstance(enemy, ENEMY):
                     raise TypeError("List contents must be all ints")
 
@@ -216,7 +195,7 @@ class MyGame(arcade.Window):
 
                 # Check health
                 if enemy.cur_health <= 0:
-                    # Dead
+                    # enemy dead
                     enemy.remove_from_sprite_lists()
 
             # If the bullet flies off-screen, remove it.
