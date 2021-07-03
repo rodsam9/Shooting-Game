@@ -90,6 +90,11 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = None
 
+        # Game Sounds
+        self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
+        self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
+        self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+
     def setup(self):
 
         # Set up the game
@@ -135,6 +140,7 @@ class MyGame(arcade.Window):
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
 
+        arcade.play_sound(self.gun_sound)
         # Create a bullet
         bullet = arcade.Sprite(":resources:images/topdown_tanks/tankDark_barrel3.png", SPRITE_SCALING_LASER)
 
@@ -197,6 +203,10 @@ class MyGame(arcade.Window):
                 if enemy.cur_health <= 0:
                     # enemy dead
                     enemy.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
 
             # If the bullet flies off-screen, remove it.
             if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
