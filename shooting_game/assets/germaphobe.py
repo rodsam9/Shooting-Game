@@ -4,18 +4,88 @@ import math
 import os
 
 SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_COIN = 0.4
+SPRITE_SCALING_ENEMY = 0.4
 SPRITE_SCALING_LASER = 0.8
-ENEMY_COUNT = 30
+ENEMY_COUNT = 15
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Germaphobe Alpha"
+SCREEN_TITLE = "Germaphobe Beta"
 
+SPRITE_SPEED = 0.20
 BULLET_SPEED = 5
+
+HEALTHBAR_WIDTH = 25
+HEALTHBAR_HEIGHT = 3
+HEALTHBAR_OFFSET_Y = -10
+
+HEALTH_NUMBER_OFFSET_X = -10
+HEALTH_NUMBER_OFFSET_Y = -25
 
 window = None
 
+class ENEMY(arcade.Sprite):
+    """
+    This class represents the coins on our screen. It is a child class of
+    the arcade library's "Sprite" class.
+    """
+
+    def follow_sprite(self, player_sprite):
+        """
+        This function will move the current sprite towards whatever
+        other sprite is specified as a parameter.
+
+        We use the 'min' function here to get the sprite to line up with
+        the target sprite, and not jump around if the sprite is not off
+        an exact multiple of SPRITE_SPEED.
+        """
+
+        if self.center_y < player_sprite.center_y:
+            self.center_y += min(SPRITE_SPEED, player_sprite.center_y - self.center_y)
+        elif self.center_y > player_sprite.center_y:
+            self.center_y -= min(SPRITE_SPEED, self.center_y - player_sprite.center_y)
+
+        if self.center_x < player_sprite.center_x:
+            self.center_x += min(SPRITE_SPEED, player_sprite.center_x - self.center_x)
+        elif self.center_x > player_sprite.center_x:
+            self.center_x -= min(SPRITE_SPEED, self.center_x - player_sprite.center_x)
+
+    def __init__(self, image, scale, max_health):
+        super().__init__(image, scale)
+
+        # Add extra attributes for health
+        self.max_health = max_health
+        self.cur_health = max_health
+
+    def draw_health_number(self):
+        """ Draw how many hit points we have """
+
+        health_string = f"{self.cur_health}/{self.max_health}"
+        arcade.draw_text(health_string,
+                         start_x=self.center_x + HEALTH_NUMBER_OFFSET_X,
+                         start_y=self.center_y + HEALTH_NUMBER_OFFSET_Y,
+                         font_size=12,
+                         color=arcade.color.WHITE)
+
+    def draw_health_bar(self):
+        """ Draw the health bar """
+
+        # Draw the 'unhealthy' background
+        if self.cur_health < self.max_health:
+            arcade.draw_rectangle_filled(center_x=self.center_x,
+                                         center_y=self.center_y + HEALTHBAR_OFFSET_Y,
+                                         width=HEALTHBAR_WIDTH,
+                                         height=3,
+                                         color=arcade.color.RED)
+
+        # Calculate width based on health
+        health_width = HEALTHBAR_WIDTH * (self.cur_health / self.max_health)
+
+        arcade.draw_rectangle_filled(center_x=self.center_x - 0.5 * (HEALTHBAR_WIDTH - health_width),
+                                     center_y=self.center_y - 10,
+                                     width=health_width,
+                                     height=HEALTHBAR_HEIGHT,
+                                     color=arcade.color.GREEN)
 
 class MyGame(arcade.Window):
     """ Main application class. """
@@ -24,13 +94,6 @@ class MyGame(arcade.Window):
         """ Initializer """
         # Call the parent class initializer
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-
-        # Set the working directory (where we expect to find files) to the same
-        # directory this .py file is in. You can leave this out of your own
-        # code, but it is needed to easily run the examples using "python -m"
-        # as mentioned at the top of this program.
-        file_path = os.path.dirname(os.path.abspath(__file__))
-        os.chdir(file_path)
 
         # Variables that will hold sprite lists
         self.player_list = None
@@ -59,8 +122,7 @@ class MyGame(arcade.Window):
         for i in range(ENEMY_COUNT):
 
             # Create the enemy instance
-            # Coin image from kenney.nl
-            enemy = arcade.Sprite(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_COIN)
+            enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, max_health=2)
 
             # Position the enemy
             enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -82,6 +144,10 @@ class MyGame(arcade.Window):
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.player_list.draw()
+
+        for enemy in self.enemy_list:
+            enemy.draw_health_number()
+            enemy.draw_health_bar()
 
     def on_mouse_press(self, x, y, button, modifiers):
         """ Called whenever the mouse button is clicked. """
@@ -108,6 +174,10 @@ class MyGame(arcade.Window):
         y_diff = dest_y - start_y
         angle = math.atan2(y_diff, x_diff)
 
+        #angle the bullet
+        bullet.angle = math.degrees(angle)
+        print(f"Bullet angle: {bullet.angle:.2f}")
+
         # Taking into account the angle, calculate our change_x
         # and change_y. Velocity is how fast the bullet travels.
         bullet.change_x = math.cos(angle) * BULLET_SPEED
@@ -118,6 +188,9 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+
+        for enemy in self.enemy_list:
+            enemy.follow_sprite(self.player_sprite)
 
         # Call update on all sprites
         self.bullet_list.update()
@@ -132,9 +205,19 @@ class MyGame(arcade.Window):
             if len(hit_list) > 0:
                 bullet.remove_from_sprite_lists()
 
-            # For every enemy we hit, remove the enemy
+            # For every enemy we hit, process
             for enemy in hit_list:
-                enemy.remove_from_sprite_lists()
+                # Make sure this is the right type of class
+                if not isinstance(enemy, ENEMY):
+                    raise TypeError("List contents must be all ints")
+
+                # Remove one health point
+                enemy.cur_health -= 1
+
+                # Check health
+                if enemy.cur_health <= 0:
+                    # Dead
+                    enemy.remove_from_sprite_lists()
 
             # If the bullet flies off-screen, remove it.
             if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
