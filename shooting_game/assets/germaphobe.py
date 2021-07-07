@@ -140,7 +140,7 @@ class MyGame(arcade.Window):
     def level_1(self):
         for level in range(1,20):
             
-            for i in range(level):
+            for enemy in range(20):
 
                 # Create the enemy image
                 enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
