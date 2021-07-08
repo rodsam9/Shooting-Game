@@ -131,16 +131,19 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = None
 
+        self.good = True
         self.level = 1
-
+        self.updated_level = 0
+        self.amount_of_enemies = 5
         # Game Sounds
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
         self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
     def level_1(self):
-        for level in range(1,20):
+        
+        while self.good:
             
-            for enemy in range(20):
+            for i in range(self.amount_of_enemies):
 
                 # Create the enemy image
                 enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
@@ -152,7 +155,10 @@ class MyGame(arcade.Window):
                 # Add the enemy to the lists
                 self.enemy_list.append(enemy)
 
-            level = level + 1
+            if self.enemy_list == 0:
+                self.level = self.updated_level + 1
+            else:
+                self.good = False
 
     # def level_2(self):
     #     for i in range(20):
@@ -275,8 +281,12 @@ class MyGame(arcade.Window):
         # update all sprites
         self.bullet_list.update()
 
-        if len(self.enemy_list) == 0 and self.level == 1:
+        if len(self.enemy_list) == 0 and self.level > self.updated_level:
             self.level += 1
+            self.good = True
+            self.level_1()
+            self.amount_of_enemies += 5
+
 
         for enemy in self.enemy_list:
 
