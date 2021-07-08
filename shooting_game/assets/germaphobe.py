@@ -24,6 +24,8 @@ HEALTHBAR_OFFSET_Y = -10
 HEALTH_NUMBER_OFFSET_X = -10
 HEALTH_NUMBER_OFFSET_Y = -25
 
+MOVEMENT_SPEED = 5
+
 class PLAYER(arcade.Sprite):
 
     def __init__(self, image, scale, player_max_health):
@@ -115,6 +117,8 @@ class ENEMY(arcade.Sprite):
                                      height=HEALTHBAR_HEIGHT,
                                      color=arcade.color.GREEN)
 
+
+
 class MyGame(arcade.Window):
     """ Main application class. """
 
@@ -130,7 +134,7 @@ class MyGame(arcade.Window):
 
         # Set up the player
         self.player_sprite = None
-
+        self.enemy_health = 2
         self.good = True
         self.level = 1
         self.updated_level = 0
@@ -139,14 +143,19 @@ class MyGame(arcade.Window):
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
         self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
-    def level_1(self):
+
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
+    def levels(self):
         
         while self.good:
             
             for i in range(self.amount_of_enemies):
 
                 # Create the enemy image
-                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
+                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, self.enemy_health)
 
                 # Position the enemy
                 enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -200,7 +209,7 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
 
-        self.level_1()
+        self.levels()
 
         # Create the enemies
         #for i in range(ENEMY_COUNT):
@@ -217,6 +226,31 @@ class MyGame(arcade.Window):
 
         # Set the background color
         arcade.set_background_color(arcade.color.AUROMETALSAURUS)
+
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
+
+        if key == arcade.key.UP:
+            self.up_pressed = True
+        elif key == arcade.key.DOWN:
+            self.down_pressed = True
+        elif key == arcade.key.LEFT:
+            self.left_pressed = True
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = True
+
+    def on_key_release(self, key, modifiers):
+        """Called when the user releases a key. """
+
+        if key == arcade.key.UP:
+            self.up_pressed = False
+        elif key == arcade.key.DOWN:
+            self.down_pressed = False
+        elif key == arcade.key.LEFT:
+            self.left_pressed = False
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = False
+
 
     def on_draw(self):
         # render the screen befroe start drawing
@@ -274,6 +308,19 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = MOVEMENT_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -MOVEMENT_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+
+        self.player_list.update()
 
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
@@ -284,8 +331,9 @@ class MyGame(arcade.Window):
         if len(self.enemy_list) == 0 and self.level > self.updated_level:
             self.level += 1
             self.good = True
-            self.level_1()
+            self.levels()
             self.amount_of_enemies += 5
+            self.enemy_health += 1
 
 
         for enemy in self.enemy_list:
