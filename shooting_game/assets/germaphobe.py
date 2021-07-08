@@ -129,10 +129,60 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = None
 
+        self.good = True
+        self.level = 1
+        self.updated_level = 0
+        self.amount_of_enemies = 5
         # Game Sounds
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
         self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+    def level_1(self):
+        
+        while self.good:
+            
+            for i in range(self.amount_of_enemies):
+
+                # Create the enemy image
+                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
+
+                # Position the enemy
+                enemy.center_x = random.randrange(SCREEN_WIDTH)
+                enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                # Add the enemy to the lists
+                self.enemy_list.append(enemy)
+
+            if self.enemy_list == 0:
+                self.level = self.updated_level + 1
+            else:
+                self.good = False
+
+    # def level_2(self):
+    #     for i in range(20):
+
+    #         # Create the enemy image
+    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_2, enemy_max_health=3)
+
+    #         # Position the enemy
+    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
+    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+    #         # Add the enemy to the lists
+    #         self.enemy_list.append(enemy)
+
+    # def level_3(self):
+    #     for i in range(25):
+
+    #         # Create the enemy image
+    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_3, enemy_max_health=4)
+
+    #         # Position the enemy
+    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
+    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+    #         # Add the enemy to the lists
+    #         self.enemy_list.append(enemy)
 
     def setup(self):
 
@@ -220,6 +270,37 @@ class MyGame(arcade.Window):
 
         # update all sprites
         self.bullet_list.update()
+
+        if len(self.enemy_list) == 0 and self.level > self.updated_level:
+            self.level += 1
+            self.good = True
+            self.level_1()
+            self.amount_of_enemies += 5
+
+
+        for enemy in self.enemy_list:
+
+            player_hit = arcade.check_for_collision_with_list(enemy, self.player_list)
+
+            if len(player_hit) > 0:
+                enemy.remove_from_sprite_lists()
+
+            for player in player_hit:
+                # Make sure this is the right sprite
+                if not isinstance(player, PLAYER):
+                    raise TypeError("List contents must be all ints")
+
+                    # Remove one health point
+                player.player_cur_health -= 1
+
+                    # Check health
+                if player.player_cur_health <= 0:
+                    # enemy dead
+                    player.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
 
         # Loop through each bullet
         for bullet in self.bullet_list:
