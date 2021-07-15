@@ -116,16 +116,58 @@ class ENEMY(arcade.Sprite):
                                      width=health_width,
                                      height=HEALTHBAR_HEIGHT,
                                      color=arcade.color.GREEN)
+class MenuView(arcade.View):
+    """ Class that manages the 'menu' view. """
+
+    def on_show(self):
+        """ Called when switching to this view"""
+        arcade.set_background_color(arcade.color.WHITE)
+
+    def on_draw(self):
+        """ Draw the menu """
+        arcade.start_render()
+        arcade.draw_text("    Germaphobe \n Click to Advance", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Move around and shoot all germs before they touch you!", SCREEN_WIDTH/2, SCREEN_HEIGHT/3,
+                         arcade.color.BLACK, font_size=15, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """ Use a mouse press to advance to the 'game' view. """
+        game_view = MyGame()
+        game_view.setup()
+        self.window.show_view(game_view)
+        arcade.run()
 
 
+class GameOverView(arcade.View):
+    """ Class to manage the game over view """
+    def on_show(self):
+        """ Called when switching to this view"""
+        arcade.set_background_color(arcade.color.BLACK)
 
-class MyGame(arcade.Window):
+    def on_draw(self):
+        """ Draw the game over view """
+        arcade.start_render()
+        arcade.draw_text("Game Over!\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5,
+                         arcade.color.WHITE, 100, anchor_x="center")
+        arcade.draw_text("Click ESCAPE to return to Main Menu.\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/3,
+                         arcade.color.WHITE, 25, anchor_x="center")
+        
+
+    def on_key_press(self, key, _modifiers):
+        """ If user hits escape, go back to the main menu view """
+        if key == arcade.key.ESCAPE:
+            menu_view = MenuView()
+            self.window.show_view(menu_view)
+
+class MyGame(arcade.View):
     """ Main application class. """
 
     def __init__(self):
         """ Initializer """
         # Call the parent class initializer
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        #super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__()
 
         # Variables that will hold sprite lists
         self.player_list = None
@@ -139,6 +181,7 @@ class MyGame(arcade.Window):
         self.level = 1
         self.updated_level = 0
         self.amount_of_enemies = 5
+        self.speed = SPRITE_SPEED
         # Game Sounds
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
@@ -148,6 +191,9 @@ class MyGame(arcade.Window):
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+
+        self.width = SCREEN_WIDTH
+
     def levels(self):
         
         while self.good:
@@ -169,32 +215,7 @@ class MyGame(arcade.Window):
             else:
                 self.good = False
 
-    # def level_2(self):
-    #     for i in range(20):
-
-    #         # Create the enemy image
-    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_2, enemy_max_health=3)
-
-    #         # Position the enemy
-    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
-    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-    #         # Add the enemy to the lists
-    #         self.enemy_list.append(enemy)
-
-    # def level_3(self):
-    #     for i in range(25):
-
-    #         # Create the enemy image
-    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_3, enemy_max_health=4)
-
-    #         # Position the enemy
-    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
-    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-    #         # Add the enemy to the lists
-    #         self.enemy_list.append(enemy)
-
+   
     def setup(self):
 
         # Set up the game
@@ -210,19 +231,6 @@ class MyGame(arcade.Window):
         self.player_list.append(self.player_sprite)
 
         self.levels()
-
-        # Create the enemies
-        #for i in range(ENEMY_COUNT):
-
-            # Create the enemy image
-            #enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
-
-            # Position the enemy
-            #enemy.center_x = random.randrange(SCREEN_WIDTH)
-            #enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-            # Add the enemy to the lists
-            #self.enemy_list.append(enemy)
 
         # Set the background color
         arcade.set_background_color(arcade.color.AUROMETALSAURUS)
@@ -334,6 +342,7 @@ class MyGame(arcade.Window):
             self.levels()
             self.amount_of_enemies += 5
             self.enemy_health += 1
+            self.speed += .20
 
 
         for enemy in self.enemy_list:
@@ -353,6 +362,9 @@ class MyGame(arcade.Window):
 
                     # Check health
                 if player.player_cur_health <= 0:
+                    game_over = GameOverView()
+                    self.window.show_view(game_over)
+                    arcade.run()
                     # enemy dead
                     player.remove_from_sprite_lists()
                     arcade.play_sound(self.death_sound)
@@ -394,9 +406,13 @@ class MyGame(arcade.Window):
 
 
 def main():
-    game = MyGame()
-    game.setup()
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Germaphobe")
+    menu_view = MenuView()
+    window.show_view(menu_view)
     arcade.run()
+    # game = MyGame()
+    # game.setup()
+    # arcade.run()
 
 
 if __name__ == "__main__":
