@@ -4,14 +4,14 @@ import math
 import os
 
 SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_ENEMY = 0.4
+SPRITE_SCALING_ENEMY = 0.2
 SPRITE_SCALING_ENEMY_2 = 0.8
 SPRITE_SCALING_ENEMY_3 = 1.0
 SPRITE_SCALING_BULLET = 0.2
 ENEMY_COUNT = 15
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+WIDTH = 800
+HEIGHT = 600
 SCREEN_TITLE = "Germaphobe Beta"
 
 SPRITE_SPEED = 0.20
@@ -125,7 +125,7 @@ class MyGame(arcade.Window):
     def __init__(self):
         """ Initializer """
         # Call the parent class initializer
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(WIDTH, HEIGHT, SCREEN_TITLE)
 
         # Variables that will hold sprite lists
         self.player_list = None
@@ -138,7 +138,7 @@ class MyGame(arcade.Window):
         self.good = True
         self.level = 1
         self.updated_level = 0
-        self.amount_of_enemies = 5
+        self.amount_of_enemies = 1
         # Game Sounds
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
@@ -155,14 +155,24 @@ class MyGame(arcade.Window):
             for i in range(self.amount_of_enemies):
 
                 # Create the enemy image
-                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-
+                enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                
                 # Position the enemy
-                enemy.center_x = random.randrange(SCREEN_WIDTH)
-                enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+                enemy.center_x = random.randrange(WIDTH)
+                enemy.center_y = random.randrange(120, HEIGHT)
+
+                enemy2.center_x = random.randrange(WIDTH)
+                enemy2.center_y = random.randrange(120, HEIGHT)
+
+                enemy3.center_x = random.randrange(WIDTH)
+                enemy3.center_y = random.randrange(120, HEIGHT)
 
                 # Add the enemy to the lists
                 self.enemy_list.append(enemy)
+                self.enemy_list.append(enemy2)
+                self.enemy_list.append(enemy3)
 
             if self.enemy_list == 0:
                 self.level = self.updated_level + 1
@@ -204,7 +214,7 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.player_sprite = PLAYER(":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
@@ -224,9 +234,7 @@ class MyGame(arcade.Window):
             # Add the enemy to the lists
             #self.enemy_list.append(enemy)
 
-        # Set the background color
-        arcade.set_background_color(arcade.color.AUROMETALSAURUS)
-
+       
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
@@ -272,12 +280,20 @@ class MyGame(arcade.Window):
             enemy.enemy_draw_health_number()
             enemy.enemy_draw_health_bar()
 
+        for enemy2 in self.enemy_list:
+            enemy2.enemy_draw_health_number()
+            enemy2.enemy_draw_health_bar()
+        
+        for enemy3 in self.enemy_list:
+            enemy3.enemy_draw_health_number()
+            enemy3.enemy_draw_health_bar()
+
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
 
         arcade.play_sound(self.gun_sound)
         # Create a bullet
-        bullet = arcade.Sprite(":resources:images/pinball/bumper.png", SPRITE_SCALING_BULLET)
+        bullet = arcade.Sprite("shooting_game/assets/bullet2.png", SPRITE_SCALING_BULLET)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
@@ -324,6 +340,12 @@ class MyGame(arcade.Window):
 
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
+        
+        for enemy2 in self.enemy_list:
+            enemy2.follow_sprite(self.player_sprite)
+        
+        for enemy3 in self.enemy_list:
+            enemy3.follow_sprite(self.player_sprite)
 
         # update all sprites
         self.bullet_list.update()
@@ -342,6 +364,54 @@ class MyGame(arcade.Window):
 
             if len(player_hit) > 0:
                 enemy.remove_from_sprite_lists()
+
+            for player in player_hit:
+                # Make sure this is the right sprite
+                if not isinstance(player, PLAYER):
+                    raise TypeError("List contents must be all ints")
+
+                    # Remove one health point
+                player.player_cur_health -= 1
+
+                    # Check health
+                if player.player_cur_health <= 0:
+                    # enemy dead
+                    player.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
+
+        for enemy2 in self.enemy_list:
+
+            player_hit = arcade.check_for_collision_with_list(enemy2, self.player_list)
+
+            if len(player_hit) > 0:
+                enemy2.remove_from_sprite_lists()
+
+            for player in player_hit:
+                # Make sure this is the right sprite
+                if not isinstance(player, PLAYER):
+                    raise TypeError("List contents must be all ints")
+
+                    # Remove one health point
+                player.player_cur_health -= 1
+
+                    # Check health
+                if player.player_cur_health <= 0:
+                    # enemy dead
+                    player.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
+
+        for enemy3 in self.enemy_list:
+
+            player_hit = arcade.check_for_collision_with_list(enemy3, self.player_list)
+
+            if len(player_hit) > 0:
+                enemy3.remove_from_sprite_lists()
 
             for player in player_hit:
                 # Make sure this is the right sprite
@@ -388,12 +458,48 @@ class MyGame(arcade.Window):
                     # Not dead
                     arcade.play_sound(self.hit_sound)
 
+            for enemy2 in hit_list:
+                # Make sure this is the right sprite
+                if not isinstance(enemy2, ENEMY):
+                    raise TypeError("List contents must be all ints")
+
+                # Remove one health point
+                enemy2.enemy_cur_health -= 1
+
+                # Check health
+                if enemy2.enemy_cur_health <= 0:
+                    # enemy dead
+                    enemy2.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
+            
+            for enemy3 in hit_list:
+                # Make sure this is the right sprite
+                if not isinstance(enemy, ENEMY):
+                    raise TypeError("List contents must be all ints")
+
+                # Remove one health point
+                enemy3.enemy_cur_health -= 1
+
+                # Check health
+                if enemy3.enemy_cur_health <= 0:
+                    # enemy dead
+                    enemy3.remove_from_sprite_lists()
+                    arcade.play_sound(self.death_sound)
+                else:
+                    # Not dead
+                    arcade.play_sound(self.hit_sound)
+
             # If the bullet flies off-screen, remove it.
             if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
                 bullet.remove_from_sprite_lists()
 
 
+
 def main():
+
     game = MyGame()
     game.setup()
     arcade.run()
