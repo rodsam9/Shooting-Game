@@ -8,7 +8,7 @@ SPRITE_SCALING_ENEMY = 0.2
 SPRITE_SCALING_ENEMY_2 = 0.8
 SPRITE_SCALING_ENEMY_3 = 1.0
 SPRITE_SCALING_BULLET = 0.2
-ENEMY_COUNT = 15
+ENEMY_COUNT = 6
 
 WIDTH = 800
 HEIGHT = 600
@@ -280,13 +280,6 @@ class MyGame(arcade.Window):
             enemy.enemy_draw_health_number()
             enemy.enemy_draw_health_bar()
 
-        for enemy2 in self.enemy_list:
-            enemy2.enemy_draw_health_number()
-            enemy2.enemy_draw_health_bar()
-        
-        for enemy3 in self.enemy_list:
-            enemy3.enemy_draw_health_number()
-            enemy3.enemy_draw_health_bar()
 
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
