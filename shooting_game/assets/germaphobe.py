@@ -3,16 +3,17 @@ import arcade
 import math
 import os
 
-SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_ENEMY = 0.4
-SPRITE_SCALING_ENEMY_2 = 0.8
-SPRITE_SCALING_ENEMY_3 = 1.0
-SPRITE_SCALING_BULLET = 0.2
+SPRITE_SCALING_PLAYER = 0.2
+SPRITE_SCALING_ENEMY = 0.1
+SPRITE_SCALING_ENEMY_2 = 0.15
+SPRITE_SCALING_ENEMY_3 = 0.3
+SPRITE_SCALING_BULLET = 0.15
+
 ENEMY_COUNT = 15
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Germaphobe Beta"
+SCREEN_TITLE = "Germaphobe"
 
 SPRITE_SPEED = 0.20
 BULLET_SPEED = 5
@@ -177,9 +178,11 @@ class MyGame(arcade.View):
         # Set up the player
         self.player_sprite = None
         self.enemy_health = 2
+        self.enemy_health2 = 5
+        self.enemy_health3 = 10
         self.good = True
         self.level = 1
-        self.updated_level = 0
+        self.updated_level = -1
         self.amount_of_enemies = 5
         self.speed = SPRITE_SPEED
         # Game Sounds
@@ -197,24 +200,90 @@ class MyGame(arcade.View):
     def levels(self):
         
         while self.good:
-            
-            for i in range(self.amount_of_enemies):
+            if self.level >= 0 and self.level <= 3: 
+                for i in range(self.amount_of_enemies):
 
-                # Create the enemy image
-                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    #enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
 
-                # Position the enemy
-                enemy.center_x = random.randrange(SCREEN_WIDTH)
-                enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-                # Add the enemy to the lists
-                self.enemy_list.append(enemy)
+                    #enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-            if self.enemy_list == 0:
-                self.level = self.updated_level + 1
+                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    #self.enemy_list.append(enemy2)
+                    #self.enemy_list.append(enemy3)
+
+                if self.enemy_list == 0:
+                    self.level = self.updated_level + 1
+                else:
+                    self.good = False
+
+            elif self.level > 3 and self.level < 6:
+                for i in range(self.amount_of_enemies):
+
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    self.enemy_list.append(enemy2)
+                    #self.enemy_list.append(enemy3)
+
+                if self.enemy_list == 0:
+                    self.level = self.updated_level + 1
+                else:
+                    self.good = False
             else:
-                self.good = False
+                for i in range(self.amount_of_enemies):
 
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    self.enemy_list.append(enemy2)
+                    self.enemy_list.append(enemy3)
+
+                if self.enemy_list == 0:
+                    self.level = self.updated_level + 1
+                else:
+                    self.good = False
+                
+               
    
     def setup(self):
 
@@ -225,7 +294,7 @@ class MyGame(arcade.View):
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.player_sprite = PLAYER(":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
@@ -279,13 +348,22 @@ class MyGame(arcade.View):
         for enemy in self.enemy_list:
             enemy.enemy_draw_health_number()
             enemy.enemy_draw_health_bar()
+        
+        # for enemy2 in self.enemy_list:
+        #     enemy2.enemy_draw_health_number()
+        #     enemy2.enemy_draw_health_bar()
+        
+        # for enemy3 in self.enemy_list:
+        #     enemy3.enemy_draw_health_number()
+        #     enemy3.enemy_draw_health_bar()
+
 
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
-
+        
         arcade.play_sound(self.gun_sound)
         # Create a bullet
-        bullet = arcade.Sprite(":resources:images/pinball/bumper.png", SPRITE_SCALING_BULLET)
+        bullet = arcade.Sprite("shooting_game/assets/bullet2.png", SPRITE_SCALING_BULLET)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
@@ -303,8 +381,8 @@ class MyGame(arcade.View):
         angle = math.atan2(y_diff, x_diff)
 
         # angle the bullet
-        bullet.angle = math.degrees(angle)
-        print(f"Bullet angle: {bullet.angle:.2f}")
+        # bullet.angle = math.degrees(angle)
+        # print(f"Bullet angle: {bullet.angle:.2f}")
 
         # Taking into account the angle, calculate our change_x
         # and change_y. Velocity is how fast the bullet travels.
@@ -314,6 +392,7 @@ class MyGame(arcade.View):
         # Add the bullet to the lists
         self.bullet_list.append(bullet)
 
+        
     def on_update(self, delta_time):
         """ Movement and game logic """
         self.player_sprite.change_x = 0
@@ -340,8 +419,8 @@ class MyGame(arcade.View):
             self.level += 1
             self.good = True
             self.levels()
-            self.amount_of_enemies += 5
-            self.enemy_health += 1
+            self.amount_of_enemies += 2
+            #self.enemy_health += 1
             self.speed += .20
 
 
