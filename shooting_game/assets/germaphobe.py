@@ -21,7 +21,7 @@ SPRITE_SPEED = 0.20
 BULLET_SPEED = 5
 
 HEALTHBAR_WIDTH = 25
-HEALTHBAR_HEIGHT = 3
+HEALTHBAR_HEIGHT = 5
 HEALTHBAR_OFFSET_Y = -10
 
 HEALTH_NUMBER_OFFSET_X = -10
@@ -42,30 +42,41 @@ class PLAYER(arcade.Sprite):
         # Draw how many health the enemies have
 
         health_string = f"{self.player_cur_health}/{self.player_max_health}"
-        arcade.draw_text(health_string,
-                         start_x=self.center_x + HEALTH_NUMBER_OFFSET_X,
-                         start_y=self.center_y + HEALTH_NUMBER_OFFSET_Y,
-                         font_size=12,
-                         color=arcade.color.WHITE)
+
+        start_x = 25
+        start_y = 40
+        arcade.draw_text(health_string, start_x + HEALTH_NUMBER_OFFSET_X, start_y + HEALTH_NUMBER_OFFSET_Y, arcade.color.WHITE, 12)
+
+
+
+       # arcade.draw_text(health_string,
+       #                  start_x=self.center_x + HEALTH_NUMBER_OFFSET_X,
+      #                   start_y=self.center_y + HEALTH_NUMBER_OFFSET_Y,
+       #                  font_size=12,
+       #                  color=arcade.color.WHITE)
 
     def player_draw_health_bar(self):
         # Draw the health bar
 
         # Draw the red background
+        start_x = 120
+        start_y = 35
         if self.player_cur_health < self.player_max_health:
-            arcade.draw_rectangle_filled(center_x=self.center_x,
-                                         center_y=self.center_y + HEALTHBAR_OFFSET_Y,
-                                         width=HEALTHBAR_WIDTH,
-                                         height=3,
+            arcade.draw_rectangle_filled(start_x + HEALTH_NUMBER_OFFSET_X,
+                                         start_y + HEALTHBAR_OFFSET_Y,
+                                         width=HEALTHBAR_WIDTH + 60,
+                                         height=HEALTHBAR_HEIGHT + 10,
                                          color=arcade.color.RED)
 
         # Calculate width based on health
-        health_width = HEALTHBAR_WIDTH * (self.player_cur_health / self.player_max_health)
-
-        arcade.draw_rectangle_filled(center_x=self.center_x - 0.5 * (HEALTHBAR_WIDTH - health_width),
-                                     center_y=self.center_y - 10,
-                                     width=health_width,
-                                     height=HEALTHBAR_HEIGHT,
+        start_x = 85
+        start_y = 25
+        health_width = (HEALTHBAR_WIDTH +50) * (self.player_cur_health / self.player_max_health)
+        
+        arcade.draw_rectangle_filled(start_x - 0.5 * (HEALTHBAR_WIDTH - health_width),
+                                     start_y ,
+                                     width=health_width + 10,
+                                     height=HEALTHBAR_HEIGHT + 10,
                                      color=arcade.color.GREEN)
 
     def update(self):
@@ -240,6 +251,9 @@ class MyGame(arcade.View):
 
         self.width = SCREEN_WIDTH
 
+        # Background image will be stored in this variable
+        self.background = None
+
     def levels(self):
         
         while self.good:
@@ -345,7 +359,7 @@ class MyGame(arcade.View):
         self.levels()
 
         # Set the background color
-        arcade.set_background_color(arcade.color.AUROMETALSAURUS)
+        self.background = arcade.load_texture("shooting_game/assets/background.jpg")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -376,13 +390,17 @@ class MyGame(arcade.View):
         # render the screen befroe start drawing
         arcade.start_render()
 
+        arcade.draw_lrwh_rectangle_textured(0, 0,
+                                            SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            self.background)
         # Draw all the sprites
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.player_list.draw()
 
         output = f"Level: {self.window.level}"
-        arcade.draw_text(output, 10, 35, arcade.color.WHITE, 15)
+        arcade.draw_text(output, 12, 45, arcade.color.WHITE, 15)
+
 
         for player in self.player_list:
             player.player_draw_health_number()
