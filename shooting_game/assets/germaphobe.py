@@ -167,7 +167,7 @@ class MenuView(arcade.View):
         start_y = 370
         arcade.draw_text("GERMAPHOBE", start_x, start_y, arcade.color.GREEN, 50)
     
-        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER("shooting_game/assets/images/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
 
         start_x = 208
         start_y = 270
@@ -271,24 +271,14 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-                    #enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
-                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
-
+                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
                     enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-                    #enemy2.center_x = random.randrange(SCREEN_WIDTH)
-                    #enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
-                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
-
                     # Add the enemy to the lists
                     self.enemy_list.append(enemy)
-                    #self.enemy_list.append(enemy2)
-                    #self.enemy_list.append(enemy3)
 
                 if self.enemy_list == 0:
                     self.window.level = self.updated_level + 1
@@ -300,9 +290,8 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
-                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/images/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
 
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -311,13 +300,9 @@ class MyGame(arcade.View):
                     enemy2.center_x = random.randrange(SCREEN_WIDTH)
                     enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
-                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
-
                     # Add the enemy to the lists
                     self.enemy_list.append(enemy)
                     self.enemy_list.append(enemy2)
-                    #self.enemy_list.append(enemy3)
 
                 if self.enemy_list == 0:
                     self.level = self.updated_level + 1
@@ -327,9 +312,9 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
-                    enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/images/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    enemy3 = ENEMY("shooting_game/assets/images/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
 
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -362,7 +347,7 @@ class MyGame(arcade.View):
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER("shooting_game/assets/images/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
@@ -370,7 +355,7 @@ class MyGame(arcade.View):
         self.levels()
 
         # Set the background color
-        self.background = arcade.load_texture("shooting_game/assets/background.jpg")
+        self.background = arcade.load_texture("shooting_game/assets/images/background.jpg")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -420,23 +405,13 @@ class MyGame(arcade.View):
         for enemy in self.enemy_list:
             enemy.enemy_draw_health_number()
             enemy.enemy_draw_health_bar()
-        
-        # for enemy2 in self.enemy_list:
-        #     enemy2.enemy_draw_health_number()
-        #     enemy2.enemy_draw_health_bar()
-        
-        # for enemy3 in self.enemy_list:
-        #     enemy3.enemy_draw_health_number()
-        #     enemy3.enemy_draw_health_bar()
-
-
 
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
         
         arcade.play_sound(self.gun_sound)
         # Create a bullet
-        bullet = arcade.Sprite("shooting_game/assets/bullet2.png", SPRITE_SCALING_BULLET)
+        bullet = arcade.Sprite("shooting_game/assets/images/bullet2.png", SPRITE_SCALING_BULLET)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
@@ -452,10 +427,6 @@ class MyGame(arcade.View):
         x_diff = dest_x - start_x
         y_diff = dest_y - start_y
         angle = math.atan2(y_diff, x_diff)
-
-        # angle the bullet
-        # bullet.angle = math.degrees(angle)
-        # print(f"Bullet angle: {bullet.angle:.2f}")
 
         # Taking into account the angle, calculate our change_x
         # and change_y. Velocity is how fast the bullet travels.
