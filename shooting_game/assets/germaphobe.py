@@ -3,7 +3,9 @@ import arcade
 import math
 import os
 
-SPRITE_SCALING_PLAYER = 0.2
+from arcade.color import BLACK, WHITE
+
+SPRITE_SCALING_PLAYER = 0.25
 SPRITE_SCALING_ENEMY = 0.1
 SPRITE_SCALING_ENEMY_2 = 0.15
 SPRITE_SCALING_ENEMY_3 = 0.3
@@ -122,15 +124,33 @@ class MenuView(arcade.View):
 
     def on_show(self):
         """ Called when switching to this view"""
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         """ Draw the menu """
         arcade.start_render()
-        arcade.draw_text("    Germaphobe \n Click to Advance", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Move around and shoot all germs before they touch you!", SCREEN_WIDTH/2, SCREEN_HEIGHT/3,
-                         arcade.color.BLACK, font_size=15, anchor_x="center")
+        start_x = 220
+        start_y = 370
+        arcade.draw_text("GERMAPHOBE", start_x, start_y, arcade.color.GREEN, 50)
+    
+        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+
+        start_x = 208
+        start_y = 270
+        arcade.draw_text("Use the arrow keys on your keyboard to move around", start_x, start_y, arcade.color.RED, 15)
+        
+        start_x = 310
+        start_y = 240
+        arcade.draw_text("Use your mouse to aim", start_x, start_y, arcade.color.RED, 15)
+
+        start_x = 360
+        start_y = 210
+        arcade.draw_text("Click to Shoot", start_x, start_y, arcade.color.RED, 15)
+
+        start_x = 330
+        start_y = 110
+        arcade.draw_text("Click to start", start_x, start_y, arcade.color.WHITE, 20)
+        arcade.draw_rectangle_outline(center_x=395, center_y=123, width=200, height=50, color=WHITE)
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ Use a mouse press to advance to the 'game' view. """
@@ -150,8 +170,11 @@ class GameOverView(arcade.View):
         """ Draw the game over view """
         arcade.start_render()
         arcade.draw_text("Game Over!\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5,
-                         arcade.color.WHITE, 100, anchor_x="center")
-        arcade.draw_text("Click ESCAPE to return to Main Menu.\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/3,
+                         arcade.color.RED, 100, anchor_x="center")
+        start_x = 290
+        start_y = 270
+        arcade.draw_text(f"You died in wave: {self.window.level}", start_x, start_y, arcade.color.RED, 20)
+        arcade.draw_text("Click ESCAPE to return to Main Menu.\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/4,
                          arcade.color.WHITE, 25, anchor_x="center")
         
 
@@ -160,6 +183,15 @@ class GameOverView(arcade.View):
         if key == arcade.key.ESCAPE:
             menu_view = MenuView()
             self.window.show_view(menu_view)
+
+class Room:
+    def __init__(self):
+        self.background = None
+
+    def setup_room_1():
+        room = Room()
+        room.background = arcade.load_texture(":resources:images/backgrounds/abstract_1.jpg")
+        return room
 
 class MyGame(arcade.View):
     """ Main application class. """
@@ -181,7 +213,7 @@ class MyGame(arcade.View):
         self.enemy_health2 = 5
         self.enemy_health3 = 10
         self.good = True
-        self.level = 1
+        self.window.level = 1
         self.updated_level = -1
         self.amount_of_enemies = 5
         self.speed = SPRITE_SPEED
@@ -200,7 +232,7 @@ class MyGame(arcade.View):
     def levels(self):
         
         while self.good:
-            if self.level >= 0 and self.level <= 3: 
+            if self.window.level >= 0 and self.window.level <= 3: 
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
@@ -224,11 +256,11 @@ class MyGame(arcade.View):
                     #self.enemy_list.append(enemy3)
 
                 if self.enemy_list == 0:
-                    self.level = self.updated_level + 1
+                    self.window.level = self.updated_level + 1
                 else:
                     self.good = False
 
-            elif self.level > 3 and self.level < 6:
+            elif self.window.level > 3 and self.window.level < 6:
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
@@ -279,7 +311,7 @@ class MyGame(arcade.View):
                     self.enemy_list.append(enemy3)
 
                 if self.enemy_list == 0:
-                    self.level = self.updated_level + 1
+                    self.window.level = self.updated_level + 1
                 else:
                     self.good = False
                 
@@ -290,7 +322,7 @@ class MyGame(arcade.View):
         # Set up the game
 
         # Sprite lists
-        self.level = 1
+        self.window.level = 1
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
@@ -338,7 +370,7 @@ class MyGame(arcade.View):
         self.bullet_list.draw()
         self.player_list.draw()
 
-        output = f"Level: {self.level}"
+        output = f"Level: {self.window.level}"
         arcade.draw_text(output, 10, 35, arcade.color.WHITE, 15)
 
         for player in self.player_list:
@@ -422,8 +454,8 @@ class MyGame(arcade.View):
         # update all sprites
         self.bullet_list.update()
 
-        if len(self.enemy_list) == 0 and self.level > self.updated_level:
-            self.level += 1
+        if len(self.enemy_list) == 0 and self.window.level > self.updated_level:
+            self.window.level += 1
             self.good = True
             self.levels()
             self.amount_of_enemies += 2
@@ -579,6 +611,7 @@ def main():
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
+    window.level = 0
     # game = MyGame()
     # game.setup()
     # arcade.run()
