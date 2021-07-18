@@ -3,22 +3,25 @@ import arcade
 import math
 import os
 
-SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_ENEMY = 0.4
-SPRITE_SCALING_ENEMY_2 = 0.8
-SPRITE_SCALING_ENEMY_3 = 1.0
-SPRITE_SCALING_BULLET = 0.2
+from arcade.color import BLACK, WHITE
+
+SPRITE_SCALING_PLAYER = 0.25
+SPRITE_SCALING_ENEMY = 0.1
+SPRITE_SCALING_ENEMY_2 = 0.15
+SPRITE_SCALING_ENEMY_3 = 0.3
+SPRITE_SCALING_BULLET = 0.15
+
 ENEMY_COUNT = 15
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Germaphobe Beta"
+SCREEN_TITLE = "Germaphobe"
 
 SPRITE_SPEED = 0.20
 BULLET_SPEED = 5
 
 HEALTHBAR_WIDTH = 25
-HEALTHBAR_HEIGHT = 3
+HEALTHBAR_HEIGHT = 5
 HEALTHBAR_OFFSET_Y = -10
 
 HEALTH_NUMBER_OFFSET_X = -10
@@ -39,33 +42,67 @@ class PLAYER(arcade.Sprite):
         # Draw how many health the enemies have
 
         health_string = f"{self.player_cur_health}/{self.player_max_health}"
-        arcade.draw_text(health_string,
-                         start_x=self.center_x + HEALTH_NUMBER_OFFSET_X,
-                         start_y=self.center_y + HEALTH_NUMBER_OFFSET_Y,
-                         font_size=12,
-                         color=arcade.color.WHITE)
+
+        start_x = 25
+        start_y = 40
+        arcade.draw_text(health_string, start_x + HEALTH_NUMBER_OFFSET_X, start_y + HEALTH_NUMBER_OFFSET_Y, arcade.color.WHITE, 12)
+
+
+
+       # arcade.draw_text(health_string,
+       #                  start_x=self.center_x + HEALTH_NUMBER_OFFSET_X,
+      #                   start_y=self.center_y + HEALTH_NUMBER_OFFSET_Y,
+       #                  font_size=12,
+       #                  color=arcade.color.WHITE)
 
     def player_draw_health_bar(self):
         # Draw the health bar
 
         # Draw the red background
+        start_x = 120
+        start_y = 35
         if self.player_cur_health < self.player_max_health:
-            arcade.draw_rectangle_filled(center_x=self.center_x,
-                                         center_y=self.center_y + HEALTHBAR_OFFSET_Y,
-                                         width=HEALTHBAR_WIDTH,
-                                         height=3,
+            arcade.draw_rectangle_filled(start_x + HEALTH_NUMBER_OFFSET_X,
+                                         start_y + HEALTHBAR_OFFSET_Y,
+                                         width=HEALTHBAR_WIDTH + 60,
+                                         height=HEALTHBAR_HEIGHT + 10,
                                          color=arcade.color.RED)
 
         # Calculate width based on health
-        health_width = HEALTHBAR_WIDTH * (self.player_cur_health / self.player_max_health)
-
-        arcade.draw_rectangle_filled(center_x=self.center_x - 0.5 * (HEALTHBAR_WIDTH - health_width),
-                                     center_y=self.center_y - 10,
-                                     width=health_width,
-                                     height=HEALTHBAR_HEIGHT,
+        start_x = 85
+        start_y = 25
+        health_width = (HEALTHBAR_WIDTH +50) * (self.player_cur_health / self.player_max_health)
+        
+        arcade.draw_rectangle_filled(start_x - 0.5 * (HEALTHBAR_WIDTH - health_width),
+                                     start_y ,
+                                     width=health_width + 10,
+                                     height=HEALTHBAR_HEIGHT + 10,
                                      color=arcade.color.GREEN)
 
+    def update(self):
+        """ Move the player """
+        # Move player around the screen
+
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+        # Check for out-of-bounds
+        if self.left < 0:
+            self.left = 0
+        elif self.right > SCREEN_WIDTH - 1:
+            self.right = SCREEN_WIDTH - 1
+    # Make sure he cant go off the screen
+        if self.bottom < 0:
+            self.bottom = 0
+        elif self.top > SCREEN_HEIGHT - 1:
+            self.top = SCREEN_HEIGHT - 1
+
 class ENEMY(arcade.Sprite):
+
+    def update(self):
+        # Rotate the coin.
+        # The arcade.Sprite class has an "angle" attribute that controls
+        # the sprite rotation. Change this, and the sprite rotates.
+        self.angle += self.change_angle
 
     def follow_sprite(self, player_sprite):
         # This tells the enemies to go to the main guy
@@ -116,16 +153,82 @@ class ENEMY(arcade.Sprite):
                                      width=health_width,
                                      height=HEALTHBAR_HEIGHT,
                                      color=arcade.color.GREEN)
+class MenuView(arcade.View):
+    """ Class that manages the 'menu' view. """
+
+    def on_show(self):
+        """ Called when switching to this view"""
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_draw(self):
+        """ Draw the menu """
+        arcade.start_render()
+        start_x = 220
+        start_y = 370
+        arcade.draw_text("GERMAPHOBE", start_x, start_y, arcade.color.GREEN, 50)
+    
+        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+
+        start_x = 208
+        start_y = 270
+        arcade.draw_text("Use the arrow keys on your keyboard to move around", start_x, start_y, arcade.color.RED, 15)
+        
+        start_x = 310
+        start_y = 240
+        arcade.draw_text("Use your mouse to aim", start_x, start_y, arcade.color.RED, 15)
+
+        start_x = 360
+        start_y = 210
+        arcade.draw_text("Click to Shoot", start_x, start_y, arcade.color.RED, 15)
+
+        start_x = 330
+        start_y = 110
+        arcade.draw_text("Click to start", start_x, start_y, arcade.color.WHITE, 20)
+        arcade.draw_rectangle_outline(center_x=395, center_y=123, width=200, height=50, color=WHITE)
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """ Use a mouse press to advance to the 'game' view. """
+        game_view = MyGame()
+        game_view.setup()
+        self.window.show_view(game_view)
+        arcade.run()
 
 
+class GameOverView(arcade.View):
+    """ Class to manage the game over view """
+    def on_show(self):
+        """ Called when switching to this view"""
+        arcade.set_background_color(arcade.color.BLACK)
 
-class MyGame(arcade.Window):
+    def on_draw(self):
+        """ Draw the game over view """
+        arcade.start_render()
+        arcade.draw_text("Game Over!\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5,
+                         arcade.color.RED, 100, anchor_x="center")
+
+        start_x = 290
+        start_y = 270
+        arcade.draw_text(f"You died in level: {self.window.level}", start_x, start_y, arcade.color.RED, 20)
+
+
+        arcade.draw_text("Click ESCAPE to return to Main Menu.\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/4,
+                         arcade.color.WHITE, 25, anchor_x="center")
+                
+
+    def on_key_press(self, key, _modifiers):
+        """ If user hits escape, go back to the main menu view """
+        if key == arcade.key.ESCAPE:
+            menu_view = MenuView()
+            self.window.show_view(menu_view)
+
+class MyGame(arcade.View):
     """ Main application class. """
 
     def __init__(self):
         """ Initializer """
         # Call the parent class initializer
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        #super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__()
 
         # Variables that will hold sprite lists
         self.player_list = None
@@ -135,97 +238,139 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = None
         self.enemy_health = 2
+        self.enemy_health2 = 5
+        self.enemy_health3 = 10
         self.good = True
-        self.level = 1
-        self.updated_level = 0
+        self.window.level = 1
+        self.updated_level = -1
         self.amount_of_enemies = 5
+        self.speed = SPRITE_SPEED
+
         # Game Sounds
-        self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
-        self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
-        self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+        self.newLevel_sound = arcade.load_sound("shooting_game/assets/sounds/newLevel.wav")
+        self.gun_sound = arcade.load_sound("shooting_game/assets/sounds/shoot.wav")
+        self.hit_sound = arcade.load_sound("shooting_game/assets/sounds/shoot.wav")
+        self.death_sound = arcade.load_sound("shooting_game/assets/sounds/deathenemy.wav")
+        self.playerDeath_sound = arcade.load_sound("shooting_game/assets/sounds/death.wav")
+        self.gameOver_sound = arcade.load_sound("shooting_game/assets/sounds/gameOver.wav")
 
         self.left_pressed = False
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+
+        self.width = SCREEN_WIDTH
+
+        # Background image will be stored in this variable
+        self.background = None
+
     def levels(self):
         
         while self.good:
-            
-            for i in range(self.amount_of_enemies):
+            if self.window.level >= 0 and self.window.level <= 3: 
+                for i in range(self.amount_of_enemies):
 
-                # Create the enemy image
-                enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    #enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
 
-                # Position the enemy
-                enemy.center_x = random.randrange(SCREEN_WIDTH)
-                enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-                # Add the enemy to the lists
-                self.enemy_list.append(enemy)
+                    #enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-            if self.enemy_list == 0:
-                self.level = self.updated_level + 1
+                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    #self.enemy_list.append(enemy2)
+                    #self.enemy_list.append(enemy3)
+
+                if self.enemy_list == 0:
+                    self.window.level = self.updated_level + 1
+                    arcade.play_sound(self.newLevel_sound)
+                else:
+                    self.good = False
+
+            elif self.window.level > 3 and self.window.level < 6:
+                for i in range(self.amount_of_enemies):
+
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    #enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    #enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    #enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
+
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    self.enemy_list.append(enemy2)
+                    #self.enemy_list.append(enemy3)
+
+                if self.enemy_list == 0:
+                    self.level = self.updated_level + 1
+                else:
+                    self.good = False
             else:
-                self.good = False
+                for i in range(self.amount_of_enemies):
 
-    # def level_2(self):
-    #     for i in range(20):
+                    # Create the enemy image
+                    enemy = ENEMY("shooting_game/assets/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY("shooting_game/assets/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    enemy3 = ENEMY("shooting_game/assets/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
 
-    #         # Create the enemy image
-    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_2, enemy_max_health=3)
+                    # Position the enemy
+                    enemy.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-    #         # Position the enemy
-    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
-    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
+                    enemy2.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy2.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-    #         # Add the enemy to the lists
-    #         self.enemy_list.append(enemy)
+                    enemy3.center_x = random.randrange(SCREEN_WIDTH)
+                    enemy3.center_y = random.randrange(120, SCREEN_HEIGHT)
 
-    # def level_3(self):
-    #     for i in range(25):
+                    # Add the enemy to the lists
+                    self.enemy_list.append(enemy)
+                    self.enemy_list.append(enemy2)
+                    self.enemy_list.append(enemy3)
 
-    #         # Create the enemy image
-    #         enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY_3, enemy_max_health=4)
-
-    #         # Position the enemy
-    #         enemy.center_x = random.randrange(SCREEN_WIDTH)
-    #         enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-    #         # Add the enemy to the lists
-    #         self.enemy_list.append(enemy)
-
+                if self.enemy_list == 0:
+                    self.window.level = self.updated_level + 1
+                else:
+                    self.good = False
+                
+               
+   
     def setup(self):
 
         # Set up the game
 
         # Sprite lists
-        self.level = 1
+        self.window.level = 1
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.player_sprite = PLAYER(":resources:images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER("shooting_game/assets/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
 
         self.levels()
 
-        # Create the enemies
-        #for i in range(ENEMY_COUNT):
-
-            # Create the enemy image
-            #enemy = ENEMY(":resources:images/enemies/slimeGreen.png", SPRITE_SCALING_ENEMY, enemy_max_health=2)
-
-            # Position the enemy
-            #enemy.center_x = random.randrange(SCREEN_WIDTH)
-            #enemy.center_y = random.randrange(120, SCREEN_HEIGHT)
-
-            # Add the enemy to the lists
-            #self.enemy_list.append(enemy)
-
         # Set the background color
-        arcade.set_background_color(arcade.color.AUROMETALSAURUS)
+        self.background = arcade.load_texture("shooting_game/assets/background.jpg")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -256,13 +401,17 @@ class MyGame(arcade.Window):
         # render the screen befroe start drawing
         arcade.start_render()
 
+        arcade.draw_lrwh_rectangle_textured(0, 0,
+                                            SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            self.background)
         # Draw all the sprites
         self.enemy_list.draw()
         self.bullet_list.draw()
         self.player_list.draw()
 
-        output = f"Level: {self.level}"
-        arcade.draw_text(output, 10, 35, arcade.color.WHITE, 15)
+        output = f"Level: {self.window.level}"
+        arcade.draw_text(output, 12, 45, arcade.color.WHITE, 15)
+
 
         for player in self.player_list:
             player.player_draw_health_number()
@@ -271,13 +420,23 @@ class MyGame(arcade.Window):
         for enemy in self.enemy_list:
             enemy.enemy_draw_health_number()
             enemy.enemy_draw_health_bar()
+        
+        # for enemy2 in self.enemy_list:
+        #     enemy2.enemy_draw_health_number()
+        #     enemy2.enemy_draw_health_bar()
+        
+        # for enemy3 in self.enemy_list:
+        #     enemy3.enemy_draw_health_number()
+        #     enemy3.enemy_draw_health_bar()
+
+
 
     def on_mouse_press(self, x, y, button, modifiers):
         # Called whenever the mouse button is clicked
-
+        
         arcade.play_sound(self.gun_sound)
         # Create a bullet
-        bullet = arcade.Sprite(":resources:images/pinball/bumper.png", SPRITE_SCALING_BULLET)
+        bullet = arcade.Sprite("shooting_game/assets/bullet2.png", SPRITE_SCALING_BULLET)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
@@ -295,8 +454,8 @@ class MyGame(arcade.Window):
         angle = math.atan2(y_diff, x_diff)
 
         # angle the bullet
-        bullet.angle = math.degrees(angle)
-        print(f"Bullet angle: {bullet.angle:.2f}")
+        # bullet.angle = math.degrees(angle)
+        # print(f"Bullet angle: {bullet.angle:.2f}")
 
         # Taking into account the angle, calculate our change_x
         # and change_y. Velocity is how fast the bullet travels.
@@ -306,6 +465,7 @@ class MyGame(arcade.Window):
         # Add the bullet to the lists
         self.bullet_list.append(bullet)
 
+        
     def on_update(self, delta_time):
         """ Movement and game logic """
         self.player_sprite.change_x = 0
@@ -324,16 +484,24 @@ class MyGame(arcade.Window):
 
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
+        
+        for enemy2 in self.enemy_list:
+            enemy2.follow_sprite(self.player_sprite)
+        
+        for enemy3 in self.enemy_list:
+            enemy3.follow_sprite(self.player_sprite)
 
         # update all sprites
         self.bullet_list.update()
 
-        if len(self.enemy_list) == 0 and self.level > self.updated_level:
-            self.level += 1
+        if len(self.enemy_list) == 0 and self.window.level > self.updated_level:
+            self.window.level += 1
             self.good = True
             self.levels()
-            self.amount_of_enemies += 5
-            self.enemy_health += 1
+            self.amount_of_enemies += 2
+            #self.enemy_health += 1
+            self.speed += .20
+            arcade.play_sound(self.newLevel_sound)
 
 
         for enemy in self.enemy_list:
@@ -353,12 +521,17 @@ class MyGame(arcade.Window):
 
                     # Check health
                 if player.player_cur_health <= 0:
+                    arcade.play_sound(self.gameOver_sound)
+                    game_over = GameOverView()
+                    self.window.show_view(game_over)
+                    arcade.run()
                     # enemy dead
                     player.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
                 else:
                     # Not dead
-                    arcade.play_sound(self.hit_sound)
+                    arcade.play_sound(self.playerDeath_sound)
+
+    
 
         # Loop through each bullet
         for bullet in self.bullet_list:
@@ -388,15 +561,22 @@ class MyGame(arcade.Window):
                     # Not dead
                     arcade.play_sound(self.hit_sound)
 
+        
             # If the bullet flies off-screen, remove it.
             if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
                 bullet.remove_from_sprite_lists()
 
 
+
 def main():
-    game = MyGame()
-    game.setup()
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Germaphobe")
+    menu_view = MenuView()
+    window.show_view(menu_view)
     arcade.run()
+    window.level = 0
+    # game = MyGame()
+    # game.setup()
+    # arcade.run()
 
 
 if __name__ == "__main__":
