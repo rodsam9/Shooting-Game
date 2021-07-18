@@ -184,15 +184,6 @@ class GameOverView(arcade.View):
             menu_view = MenuView()
             self.window.show_view(menu_view)
 
-class Room:
-    def __init__(self):
-        self.background = None
-
-    def setup_room_1():
-        room = Room()
-        room.background = arcade.load_texture(":resources:images/backgrounds/abstract_1.jpg")
-        return room
-
 class MyGame(arcade.View):
     """ Main application class. """
 
@@ -490,53 +481,7 @@ class MyGame(arcade.View):
                     # Not dead
                     arcade.play_sound(self.hit_sound)
 
-        for enemy2 in self.enemy_list:
-
-            player_hit = arcade.check_for_collision_with_list(enemy2, self.player_list)
-
-            if len(player_hit) > 0:
-                enemy2.remove_from_sprite_lists()
-
-            for player in player_hit:
-                # Make sure this is the right sprite
-                if not isinstance(player, PLAYER):
-                    raise TypeError("List contents must be all ints")
-
-                    # Remove one health point
-                player.player_cur_health -= 1
-
-                    # Check health
-                if player.player_cur_health <= 0:
-                    # enemy dead
-                    player.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
-                else:
-                    # Not dead
-                    arcade.play_sound(self.hit_sound)
-
-        for enemy3 in self.enemy_list:
-
-            player_hit = arcade.check_for_collision_with_list(enemy3, self.player_list)
-
-            if len(player_hit) > 0:
-                enemy3.remove_from_sprite_lists()
-
-            for player in player_hit:
-                # Make sure this is the right sprite
-                if not isinstance(player, PLAYER):
-                    raise TypeError("List contents must be all ints")
-
-                    # Remove one health point
-                player.player_cur_health -= 1
-
-                    # Check health
-                if player.player_cur_health <= 0:
-                    # enemy dead
-                    player.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
-                else:
-                    # Not dead
-                    arcade.play_sound(self.hit_sound)
+    
 
         # Loop through each bullet
         for bullet in self.bullet_list:
@@ -566,40 +511,7 @@ class MyGame(arcade.View):
                     # Not dead
                     arcade.play_sound(self.hit_sound)
 
-            for enemy2 in hit_list:
-                # Make sure this is the right sprite
-                if not isinstance(enemy2, ENEMY):
-                    raise TypeError("List contents must be all ints")
-
-                # Remove one health point
-                enemy2.enemy_cur_health -= 1
-
-                # Check health
-                if enemy2.enemy_cur_health <= 0:
-                    # enemy dead
-                    enemy2.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
-                else:
-                    # Not dead
-                    arcade.play_sound(self.hit_sound)
-            
-            for enemy3 in hit_list:
-                # Make sure this is the right sprite
-                if not isinstance(enemy, ENEMY):
-                    raise TypeError("List contents must be all ints")
-
-                # Remove one health point
-                enemy3.enemy_cur_health -= 1
-
-                # Check health
-                if enemy3.enemy_cur_health <= 0:
-                    # enemy dead
-                    enemy3.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
-                else:
-                    # Not dead
-                    arcade.play_sound(self.hit_sound)
-
+        
             # If the bullet flies off-screen, remove it.
             if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
                 bullet.remove_from_sprite_lists()
