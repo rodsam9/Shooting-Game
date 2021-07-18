@@ -98,6 +98,12 @@ class PLAYER(arcade.Sprite):
 
 class ENEMY(arcade.Sprite):
 
+    def update(self):
+        # Rotate the coin.
+        # The arcade.Sprite class has an "angle" attribute that controls
+        # the sprite rotation. Change this, and the sprite rotates.
+        self.angle += self.change_angle
+
     def follow_sprite(self, player_sprite):
         # This tells the enemies to go to the main guy
 
@@ -239,10 +245,14 @@ class MyGame(arcade.View):
         self.updated_level = -1
         self.amount_of_enemies = 5
         self.speed = SPRITE_SPEED
+
         # Game Sounds
-        self.gun_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
-        self.hit_sound = arcade.load_sound(":resources:sounds/hit1.wav")
-        self.death_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+        self.newLevel_sound = arcade.load_sound("shooting_game/assets/sounds/newLevel.wav")
+        self.gun_sound = arcade.load_sound("shooting_game/assets/sounds/shoot.wav")
+        self.hit_sound = arcade.load_sound("shooting_game/assets/sounds/shoot.wav")
+        self.death_sound = arcade.load_sound("shooting_game/assets/sounds/deathenemy.wav")
+        self.playerDeath_sound = arcade.load_sound("shooting_game/assets/sounds/death.wav")
+        self.gameOver_sound = arcade.load_sound("shooting_game/assets/sounds/gameOver.wav")
 
         self.left_pressed = False
         self.right_pressed = False
@@ -282,6 +292,7 @@ class MyGame(arcade.View):
 
                 if self.enemy_list == 0:
                     self.window.level = self.updated_level + 1
+                    arcade.play_sound(self.newLevel_sound)
                 else:
                     self.good = False
 
@@ -490,6 +501,7 @@ class MyGame(arcade.View):
             self.amount_of_enemies += 2
             #self.enemy_health += 1
             self.speed += .20
+            arcade.play_sound(self.newLevel_sound)
 
 
         for enemy in self.enemy_list:
@@ -509,15 +521,15 @@ class MyGame(arcade.View):
 
                     # Check health
                 if player.player_cur_health <= 0:
+                    arcade.play_sound(self.gameOver_sound)
                     game_over = GameOverView()
                     self.window.show_view(game_over)
                     arcade.run()
                     # enemy dead
                     player.remove_from_sprite_lists()
-                    arcade.play_sound(self.death_sound)
                 else:
                     # Not dead
-                    arcade.play_sound(self.hit_sound)
+                    arcade.play_sound(self.playerDeath_sound)
 
     
 
