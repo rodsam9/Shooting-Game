@@ -68,6 +68,23 @@ class PLAYER(arcade.Sprite):
                                      height=HEALTHBAR_HEIGHT,
                                      color=arcade.color.GREEN)
 
+    def update(self):
+        """ Move the player """
+        # Move player around the screen
+
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+        # Check for out-of-bounds
+        if self.left < 0:
+            self.left = 0
+        elif self.right > SCREEN_WIDTH - 1:
+            self.right = SCREEN_WIDTH - 1
+    # Make sure he cant go off the screen
+        if self.bottom < 0:
+            self.bottom = 0
+        elif self.top > SCREEN_HEIGHT - 1:
+            self.top = SCREEN_HEIGHT - 1
+
 class ENEMY(arcade.Sprite):
 
     def follow_sprite(self, player_sprite):
@@ -171,12 +188,15 @@ class GameOverView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Game Over!\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5,
                          arcade.color.RED, 100, anchor_x="center")
+
         start_x = 290
         start_y = 270
-        arcade.draw_text(f"You died in wave: {self.window.level}", start_x, start_y, arcade.color.RED, 20)
+        arcade.draw_text(f"You died in level: {self.window.level}", start_x, start_y, arcade.color.RED, 20)
+
+
         arcade.draw_text("Click ESCAPE to return to Main Menu.\n", SCREEN_WIDTH/2, SCREEN_HEIGHT/4,
                          arcade.color.WHITE, 25, anchor_x="center")
-        
+                
 
     def on_key_press(self, key, _modifiers):
         """ If user hits escape, go back to the main menu view """
