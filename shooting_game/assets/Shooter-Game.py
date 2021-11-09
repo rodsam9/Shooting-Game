@@ -5,17 +5,17 @@ import os
 
 from arcade.color import BLACK, WHITE
 
-SPRITE_SCALING_PLAYER = 0.25
-SPRITE_SCALING_ENEMY = 0.1
+SPRITE_SCALING_PLAYER = .60
+SPRITE_SCALING_ENEMY = 0.5
 SPRITE_SCALING_ENEMY_2 = 0.15
 SPRITE_SCALING_ENEMY_3 = 0.3
-SPRITE_SCALING_BULLET = 0.15
+SPRITE_SCALING_BULLET = 0.7
 
 ENEMY_COUNT = 15
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Germaphobe"
+SCREEN_TITLE = "Shooter Game"
 
 SPRITE_SPEED = 0.20
 BULLET_SPEED = 5
@@ -165,9 +165,9 @@ class MenuView(arcade.View):
         arcade.start_render()
         start_x = 220
         start_y = 370
-        arcade.draw_text("GERMAPHOBE", start_x, start_y, arcade.color.GREEN, 50)
-    
-        self.player_sprite = PLAYER("shooting_game/assets/images/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        arcade.draw_text("Shooter Game", start_x, start_y, arcade.color.WHITE, 50)
+
+        self.player_sprite = PLAYER(":resources:images/animated_characters/male_adventurer/maleAdventurer_walk1.png", SPRITE_SCALING_PLAYER, player_max_health=10)
 
         start_x = 208
         start_y = 270
@@ -271,7 +271,7 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy = ENEMY(":resources:images/animated_characters/robot/robot_walk7.png", SPRITE_SCALING_ENEMY, self.enemy_health)
                 
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -290,8 +290,8 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-                    enemy2 = ENEMY("shooting_game/assets/images/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    enemy = ENEMY(":resources:images/animated_characters/robot/robot_walk7.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY(":resources:images/animated_characters/robot/robot_fall.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
 
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -312,9 +312,9 @@ class MyGame(arcade.View):
                 for i in range(self.amount_of_enemies):
 
                     # Create the enemy image
-                    enemy = ENEMY("shooting_game/assets/images/germ1.png", SPRITE_SCALING_ENEMY, self.enemy_health)
-                    enemy2 = ENEMY("shooting_game/assets/images/germ2.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
-                    enemy3 = ENEMY("shooting_game/assets/images/germ3.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
+                    enemy = ENEMY(":resources:images/animated_characters/robot/robot_walk7.png", SPRITE_SCALING_ENEMY, self.enemy_health)
+                    enemy2 = ENEMY(":resources:images/animated_characters/robot/robot_fall.png", SPRITE_SCALING_ENEMY_2, self.enemy_health2)
+                    enemy3 = ENEMY(":resources:images/enemies/saw.png", SPRITE_SCALING_ENEMY_3, self.enemy_health3)
 
                     # Position the enemy
                     enemy.center_x = random.randrange(SCREEN_WIDTH)
@@ -347,7 +347,7 @@ class MyGame(arcade.View):
         self.player_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.player_sprite = PLAYER("shooting_game/assets/images/dr.png", SPRITE_SCALING_PLAYER, player_max_health=10)
+        self.player_sprite = PLAYER(":resources:images/animated_characters/male_adventurer/maleAdventurer_walk1.png", SPRITE_SCALING_PLAYER, player_max_health=10)
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
         self.player_list.append(self.player_sprite)
@@ -355,7 +355,7 @@ class MyGame(arcade.View):
         self.levels()
 
         # Set the background color
-        self.background = arcade.load_texture("shooting_game/assets/images/background.jpg")
+        self.background = arcade.load_texture(":resources:images/backgrounds/abstract_1.jpg")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -411,7 +411,7 @@ class MyGame(arcade.View):
         
         arcade.play_sound(self.gun_sound)
         # Create a bullet
-        bullet = arcade.Sprite("shooting_game/assets/images/bullet2.png", SPRITE_SCALING_BULLET)
+        bullet = arcade.Sprite(":resources:images/space_shooter/meteorGrey_small1.png", SPRITE_SCALING_BULLET)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
@@ -540,7 +540,7 @@ class MyGame(arcade.View):
 
 
 def main():
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Germaphobe")
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Shooter Game")
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
